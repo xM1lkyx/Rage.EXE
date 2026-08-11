@@ -1,0 +1,1436 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAGE.exe 💗</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #ffe6f0;
+    color: #b83b68;
+    font-family: "Courier New", monospace;
+    text-align: center;
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    min-height: 100vh;
+    width: 100%;
+    padding: 25px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+h1 {
+    font-size: clamp(30px, 6vw, 65px);
+    color: #c94f7c;
+    text-shadow: 0 4px 12px rgba(201,79,124,.25);
+}
+
+p {
+    font-size: 18px;
+    color: #9f4968;
+}
+
+strong {
+    color: #c94f7c;
+}
+
+button {
+    background: #ffc4d9;
+    color: #963b60;
+    border: 2px solid #e889aa;
+    border-radius: 14px;
+    padding: 13px 25px;
+    margin: 8px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(185,72,111,.18);
+    transition: transform .15s, background .15s;
+}
+
+button:hover {
+    background: #ffabc9;
+    transform: scale(1.06);
+}
+
+button:active {
+    transform: scale(.94);
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+input {
+    background: #fff4f8;
+    color: #963b60;
+    border: 2px solid #e889aa;
+    border-radius: 14px;
+    padding: 14px;
+    width: min(500px,90%);
+    font-family: inherit;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+}
+
+input:focus {
+    border-color: #d95c8b;
+    box-shadow: 0 0 0 4px rgba(232,137,170,.25);
+}
+
+.stats {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    color: #b83b68;
+    background: #fff4f8;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #efb0c6;
+    z-index: 1000;
+}
+
+.arena {
+    position: relative;
+    width: min(900px,95vw);
+    height: 55vh;
+    background: rgba(255,255,255,.35);
+    border: 2px solid #f1aec6;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.moving {
+    position: absolute;
+    margin: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+    width: min(600px,90vw);
+}
+
+.grid button {
+    margin: 0;
+}
+
+.memoryButtons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.final {
+    max-width: 700px;
+    line-height: 1.8;
+    background: rgba(255,255,255,.4);
+    padding: 30px;
+    border-radius: 25px;
+    border: 1px solid #efb0c6;
+}
+
+#fakeNextArea {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+}
+
+#bossButton {
+    position: absolute;
+}
+
+.error {
+    font-size: clamp(45px,10vw,100px);
+    font-weight: bold;
+    color: #d84f7e;
+    animation: shake .12s infinite;
+}
+
+@keyframes shake {
+    0%   { transform: translate(0); }
+    25%  { transform: translate(-6px,4px); }
+    50%  { transform: translate(6px,-4px); }
+    75%  { transform: translate(-4px,-3px); }
+    100% { transform: translate(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stats">
+    💗 LIVES: <span id="lives">3</span>
+</div>
+
+
+<!-- START -->
+
+<div id="start" class="screen active">
+
+    <h1>💗 RAGE.exe 💗</h1>
+
+    <p>
+        15 cute little challenges.
+        <br>
+        3 lives.
+        <br><br>
+        Don't rage... 🌸
+    </p>
+
+    <button onclick="startGame()">
+        START 💕
+    </button>
+
+</div>
+
+
+<!-- 1 -->
+
+<div id="game1" class="screen">
+
+    <h1>🌸 1. CATCH IT</h1>
+
+    <p>Catch the button!</p>
+
+    <div class="arena" id="arena1">
+
+        <button id="runner">
+            CLICK ME 💗
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- 2 -->
+
+<div id="game2" class="screen">
+
+    <h1>🎀 2. WHICH ONE?</h1>
+
+    <p>Only ONE is real...</p>
+
+    <div class="grid" id="realGrid"></div>
+
+</div>
+
+
+<!-- 3 -->
+
+<div id="game3" class="screen">
+
+    <h1>⏰ 3. DON'T CLICK YET</h1>
+
+    <p id="waitText">WAIT...</p>
+
+    <button id="waitButton" disabled>
+        WAIT 💕
+    </button>
+
+</div>
+
+
+<!-- 4 -->
+
+<div id="game4" class="screen">
+
+    <h1>🧠 4. MEMORY</h1>
+
+    <p id="memoryText">
+        WATCH THE SEQUENCE
+    </p>
+
+    <div
+        class="memoryButtons"
+        id="memoryButtons">
+    </div>
+
+</div>
+
+
+<!-- 5 -->
+
+<div id="game5" class="screen">
+
+    <h1>🔢 5. ORDER</h1>
+
+    <p>Click the numbers in order.</p>
+
+    <div
+        class="grid"
+        id="numberGrid">
+    </div>
+
+</div>
+
+
+<!-- 6 -->
+
+<div id="game6" class="screen">
+
+    <h1>⌨️ 6. TYPE IT</h1>
+
+    <p>Type exactly:</p>
+
+    <strong id="typeWord">
+        RAGE IS TEMPORARY
+    </strong>
+
+    <br><br>
+
+    <input
+        id="typingInput"
+        autocomplete="off"
+        placeholder="type it here..."
+    >
+
+    <br>
+
+    <button onclick="checkTyping()">
+        SUBMIT 💗
+    </button>
+
+</div>
+
+
+<!-- 7 -->
+
+<div id="game7" class="screen">
+
+    <h1>🔎 7. FIND IT</h1>
+
+    <p>Find the hidden button...</p>
+
+    <div class="arena" id="invisibleArena">
+
+        <button
+            id="invisibleButton"
+            class="hidden">
+
+            HERE 💗
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- 8 -->
+
+<div id="game8" class="screen">
+
+    <h1>🏃 8. DON'T TOUCH IT</h1>
+
+    <p>Try to catch it!</p>
+
+    <div class="arena" id="avoidArena">
+
+        <button
+            id="avoidButton"
+            class="moving">
+
+            DON'T 💕
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- 9 -->
+
+<div id="game9" class="screen">
+
+    <h1>🎀 9. NEXT?</h1>
+
+    <p>Find the REAL NEXT button.</p>
+
+    <div id="fakeNextArea"></div>
+
+</div>
+
+
+<!-- 10 -->
+
+<div id="game10" class="screen">
+
+    <h1>🎲 10. ROULETTE</h1>
+
+    <p>One is safe...</p>
+
+    <div
+        class="grid"
+        id="roulette">
+    </div>
+
+</div>
+
+
+<!-- 11 -->
+
+<div id="game11" class="screen">
+
+    <h1>🧩 11. PUZZLE</h1>
+
+    <p>Click 1 through 12.</p>
+
+    <div
+        class="grid"
+        id="puzzle">
+    </div>
+
+</div>
+
+
+<!-- 12 -->
+
+<div id="game12" class="screen">
+
+    <h1>👀 12. SPOT IT</h1>
+
+    <p>Find the different symbol.</p>
+
+    <div
+        class="grid"
+        id="difference">
+    </div>
+
+</div>
+
+
+<!-- 13 -->
+
+<div id="game13" class="screen">
+
+    <h1>🎲 13. RANDOM</h1>
+
+    <p id="randomText">
+        PRESS THE BUTTON
+    </p>
+
+    <button onclick="randomChallenge()">
+        TRY YOUR LUCK 💗
+    </button>
+
+</div>
+
+
+<!-- 14 -->
+
+<div id="game14" class="screen">
+
+    <h1>💗 14. THREE STRIKES</h1>
+
+    <p>Get three correct clicks.</p>
+
+    <p>
+        SCORE:
+        <span id="strikeScore">0</span>/3
+    </p>
+
+    <button onclick="strikeGame()">
+        CLICK 💕
+    </button>
+
+</div>
+
+
+<!-- 15 -->
+
+<div id="game15" class="screen">
+
+    <h1>👑 FINAL BOSS 👑</h1>
+
+    <p>Catch the NEXT button!</p>
+
+    <div class="arena">
+
+        <button id="bossButton">
+            NEXT 💗
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- WIN -->
+
+<div id="win" class="screen">
+
+    <h1>🎀 YOU WON 🎀</h1>
+
+    <div class="final">
+
+        <p>
+            YOU ACTUALLY DID IT.
+        </p>
+
+        <p>
+            You survived all
+            <strong>15 challenges</strong>
+            without giving up.
+        </p>
+
+        <p>
+            💗🌸🎀🌸💗
+        </p>
+
+        <button onclick="location.reload()">
+            PLAY AGAIN 💕
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let lives = 3;
+let currentGame = 1;
+
+const $ =
+    id => document.getElementById(id);
+
+
+/* =========================
+   SCREEN CONTROL
+========================= */
+
+function show(id) {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(
+            s => s.classList.remove("active")
+        );
+
+    $(id).classList.add("active");
+}
+
+
+/* =========================
+   LIVES
+========================= */
+
+function loseLife() {
+
+    lives--;
+
+    $("lives").textContent = lives;
+
+    if (lives <= 0) {
+
+        alert(
+            "💗 YOU RAGED TOO HARD 💗\n\nSTART OVER!"
+        );
+
+        lives = 3;
+
+        $("lives").textContent = 3;
+
+        currentGame = 1;
+
+        show("start");
+
+        return true;
+    }
+
+    return false;
+}
+
+
+/* =========================
+   START
+========================= */
+
+function startGame() {
+
+    lives = 3;
+    currentGame = 1;
+
+    $("lives").textContent = 3;
+
+    setupGame1();
+}
+
+
+/* =========================
+   NEXT GAME
+========================= */
+
+function nextGame() {
+
+    currentGame++;
+
+    if (currentGame > 15) {
+
+        show("win");
+
+        return;
+    }
+
+    show("game" + currentGame);
+
+    const setup =
+        window[
+            "setupGame" +
+            currentGame
+        ];
+
+    if (setup) setup();
+}
+
+
+/* =========================
+   GAME 1
+   RANDOM MOVEMENT
+========================= */
+
+function setupGame1() {
+
+    const button = $("runner");
+    const arena = $("arena1");
+
+    function move() {
+
+        const x =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientWidth -
+                button.offsetWidth
+            );
+
+        const y =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientHeight -
+                button.offsetHeight
+            );
+
+        button.style.position = "absolute";
+        button.style.left = x + "px";
+        button.style.top = y + "px";
+    }
+
+    button.onclick = nextGame;
+    button.onmouseenter = move;
+
+    move();
+}
+
+
+/* =========================
+   GAME 2
+   RANDOM CORRECT BUTTON
+========================= */
+
+function setupGame2() {
+
+    const grid = $("realGrid");
+
+    grid.innerHTML = "";
+
+    const correct =
+        Math.floor(Math.random() * 12);
+
+    for (let i = 0; i < 12; i++) {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent = "NEXT 💗";
+
+        b.onclick = () => {
+
+            if (i === correct) {
+
+                nextGame();
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert("🎀 WRONG BUTTON 🎀");
+                }
+            }
+        };
+
+        grid.appendChild(b);
+    }
+}
+
+
+/* =========================
+   GAME 3
+   RANDOM DELAY
+========================= */
+
+function setupGame3() {
+
+    const button = $("waitButton");
+    const text = $("waitText");
+
+    button.disabled = true;
+    button.onclick = null;
+
+    const seconds =
+        Math.floor(Math.random() * 5) + 3;
+
+    let remaining = seconds;
+
+    text.textContent =
+        "WAIT " + remaining;
+
+    const timer =
+        setInterval(() => {
+
+            remaining--;
+
+            if (remaining <= 0) {
+
+                clearInterval(timer);
+
+                text.textContent =
+                    "NOW! 💗";
+
+                button.disabled = false;
+                button.textContent =
+                    "CLICK NOW 💗";
+
+                button.onclick = nextGame;
+
+            } else {
+
+                text.textContent =
+                    "WAIT " + remaining;
+            }
+
+        }, 1000);
+}
+
+
+/* =========================
+   GAME 4
+   RANDOM MEMORY
+========================= */
+
+let memorySequence = [];
+let memoryIndex = 0;
+
+function setupGame4() {
+
+    const container =
+        $("memoryButtons");
+
+    container.innerHTML = "";
+
+    memorySequence = [];
+
+    memoryIndex = 0;
+
+    const length =
+        Math.floor(Math.random() * 3) + 4;
+
+    for (let i = 0; i < 4; i++) {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent =
+            "💗 " + (i + 1);
+
+        container.appendChild(b);
+    }
+
+    for (let i = 0; i < length; i++) {
+
+        memorySequence.push(
+            Math.floor(Math.random() * 4)
+        );
+    }
+
+    let displayIndex = 0;
+
+    const interval =
+        setInterval(() => {
+
+            if (
+                displayIndex >=
+                memorySequence.length
+            ) {
+
+                clearInterval(interval);
+
+                $("memoryText")
+                    .textContent =
+                    "YOUR TURN 💕";
+
+                return;
+            }
+
+            $("memoryText")
+                .textContent =
+                "CLICK " +
+                (memorySequence[displayIndex] + 1);
+
+            displayIndex++;
+
+        }, 700);
+
+    container
+        .querySelectorAll("button")
+        .forEach((button,index) => {
+
+            button.onclick = () => {
+
+                if (
+                    index ===
+                    memorySequence[memoryIndex]
+                ) {
+
+                    memoryIndex++;
+
+                    if (
+                        memoryIndex ===
+                        memorySequence.length
+                    ) {
+
+                        nextGame();
+                    }
+
+                } else {
+
+                    if (!loseLife()) {
+
+                        alert(
+                            "🧠 MEMORY FAILED 💗"
+                        );
+                    }
+                }
+            };
+        });
+}
+
+
+/* =========================
+   GAME 5
+   RANDOM ORDER
+========================= */
+
+let numberNext = 1;
+
+function setupGame5() {
+
+    numberNext = 1;
+
+    const grid =
+        $("numberGrid");
+
+    grid.innerHTML = "";
+
+    let numbers =
+        Array.from(
+            {length:9},
+            (_,i) => i + 1
+        );
+
+    numbers.sort(
+        () => Math.random() - .5
+    );
+
+    numbers.forEach(num => {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent = num;
+
+        b.onclick = () => {
+
+            if (num === numberNext) {
+
+                numberNext++;
+
+                b.style.visibility =
+                    "hidden";
+
+                if (numberNext === 10) {
+
+                    nextGame();
+                }
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert(
+                        "🔢 WRONG ORDER 💗"
+                    );
+                }
+            }
+        };
+
+        grid.appendChild(b);
+    });
+}
+
+
+/* =========================
+   GAME 6
+   RANDOM WORD
+========================= */
+
+const typingWords = [
+
+    "RAGE IS TEMPORARY",
+    "PINK RAGE",
+    "I WILL NOT RAGE",
+    "CLICK THE BUTTON",
+    "I LOVE CHALLENGES",
+    "TRY AGAIN"
+
+];
+
+function setupGame6() {
+
+    const word =
+        typingWords[
+            Math.floor(
+                Math.random() *
+                typingWords.length
+            )
+        ];
+
+    $("typeWord").textContent =
+        word;
+
+    $("typingInput").value = "";
+    $("typingInput").placeholder =
+        "type it here...";
+}
+
+function checkTyping() {
+
+    const expected =
+        $("typeWord").textContent;
+
+    if (
+        $("typingInput").value ===
+        expected
+    ) {
+
+        nextGame();
+
+    } else {
+
+        if (!loseLife()) {
+
+            $("typingInput").value = "";
+
+            $("typingInput")
+                .placeholder =
+                "NOPE... TRY AGAIN 💗";
+        }
+    }
+}
+
+
+/* =========================
+   GAME 7
+   RANDOM HIDDEN POSITION
+========================= */
+
+function setupGame7() {
+
+    const arena =
+        $("invisibleArena");
+
+    const button =
+        $("invisibleButton");
+
+    button.classList.add("hidden");
+
+    const x =
+        Math.random() *
+        Math.max(
+            1,
+            arena.clientWidth - 100
+        );
+
+    const y =
+        Math.random() *
+        Math.max(
+            1,
+            arena.clientHeight - 50
+        );
+
+    button.style.position = "absolute";
+    button.style.left = x + "px";
+    button.style.top = y + "px";
+
+    const delay =
+        Math.floor(Math.random() * 3000) + 1000;
+
+    setTimeout(() => {
+
+        button.classList.remove("hidden");
+
+    }, delay);
+
+    button.onclick = nextGame;
+}
+
+
+/* =========================
+   GAME 8
+   RANDOM MOVING BUTTON
+========================= */
+
+function setupGame8() {
+
+    const arena =
+        $("avoidArena");
+
+    const button =
+        $("avoidButton");
+
+    function move() {
+
+        button.style.left =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientWidth - 100
+            ) + "px";
+
+        button.style.top =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientHeight - 50
+            ) + "px";
+    }
+
+    button.onmouseenter = move;
+
+    button.onclick = () => {
+
+        if (!loseLife()) {
+
+            move();
+        }
+    };
+
+    move();
+
+    setTimeout(
+        nextGame,
+        Math.floor(Math.random() * 5000) + 8000
+    );
+}
+
+
+/* =========================
+   GAME 9
+   RANDOM POSITION + ANSWER
+========================= */
+
+function setupGame9() {
+
+    const area =
+        $("fakeNextArea");
+
+    area.innerHTML = "";
+
+    const correct =
+        Math.floor(Math.random() * 10);
+
+    const positions = [];
+
+    while (positions.length < 10) {
+
+        const position = [
+
+            Math.random() * 85,
+            Math.random() * 75
+
+        ];
+
+        positions.push(position);
+    }
+
+    for (let i = 0; i < 10; i++) {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent =
+            "NEXT 🎀";
+
+        b.style.position =
+            "absolute";
+
+        b.style.left =
+            positions[i][0] + "%";
+
+        b.style.top =
+            positions[i][1] + "%";
+
+        b.onclick = () => {
+
+            if (i === correct) {
+
+                nextGame();
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert(
+                        "🎀 FAKE NEXT 🎀"
+                    );
+                }
+            }
+        };
+
+        area.appendChild(b);
+    }
+}
+
+
+/* =========================
+   GAME 10
+   RANDOM SAFE BUTTON
+========================= */
+
+function setupGame10() {
+
+    const container =
+        $("roulette");
+
+    container.innerHTML = "";
+
+    const safe =
+        Math.floor(Math.random() * 12);
+
+    for (let i = 0; i < 12; i++) {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent =
+            ["💗","💕","🎀","🌸"][
+                Math.floor(Math.random() * 4)
+            ];
+
+        b.onclick = () => {
+
+            if (i === safe) {
+
+                nextGame();
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert("🎲 NOPE 💗");
+                }
+            }
+        };
+
+        container.appendChild(b);
+    }
+}
+
+
+/* =========================
+   GAME 11
+   RANDOM PUZZLE
+========================= */
+
+let puzzleNext = 1;
+
+function setupGame11() {
+
+    puzzleNext = 1;
+
+    const grid =
+        $("puzzle");
+
+    grid.innerHTML = "";
+
+    let nums =
+        Array.from(
+            {length:12},
+            (_,i) => i + 1
+        );
+
+    nums.sort(
+        () => Math.random() - .5
+    );
+
+    nums.forEach(num => {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent = num;
+
+        b.onclick = () => {
+
+            if (num === puzzleNext) {
+
+                puzzleNext++;
+
+                b.style.visibility =
+                    "hidden";
+
+                if (puzzleNext === 13) {
+
+                    nextGame();
+                }
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert(
+                        "🧩 WRONG 💗"
+                    );
+                }
+            }
+        };
+
+        grid.appendChild(b);
+    });
+}
+
+
+/* =========================
+   GAME 12
+   RANDOM DIFFERENT SYMBOL
+========================= */
+
+function setupGame12() {
+
+    const grid =
+        $("difference");
+
+    grid.innerHTML = "";
+
+    const correct =
+        Math.floor(Math.random() * 16);
+
+    const symbols = [
+        ["O","0"],
+        ["X","×"],
+        ["S","5"],
+        ["B","8"]
+    ];
+
+    const pair =
+        symbols[
+            Math.floor(
+                Math.random() *
+                symbols.length
+            )
+        ];
+
+    for (let i = 0; i < 16; i++) {
+
+        const b =
+            document.createElement("button");
+
+        b.textContent =
+            i === correct
+                ? pair[0]
+                : pair[1];
+
+        b.onclick = () => {
+
+            if (i === correct) {
+
+                nextGame();
+
+            } else {
+
+                if (!loseLife()) {
+
+                    alert(
+                        "👀 NOT THAT ONE 💗"
+                    );
+                }
+            }
+        };
+
+        grid.appendChild(b);
+    }
+}
+
+
+/* =========================
+   GAME 13
+   RANDOM OUTCOME
+========================= */
+
+function randomChallenge() {
+
+    const messages = [
+
+        "TOO EASY 💗",
+        "TRY AGAIN 🎀",
+        "YOU REALLY CLICKED THAT?",
+        "NOPE 🌸",
+        "ALMOST 💕",
+        "HAHA 💗",
+        "KEEP GOING 🎀",
+        "WRONG BUTTON 💗",
+        "SO CLOSE 🌸",
+        "MAYBE NEXT TIME 💕"
+
+    ];
+
+    const message =
+        messages[
+            Math.floor(
+                Math.random() *
+                messages.length
+            )
+        ];
+
+    $("randomText")
+        .textContent =
+        message;
+
+    if (Math.random() > .7) {
+
+        nextGame();
+    }
+}
+
+
+/* =========================
+   GAME 14
+   RANDOM STRIKES
+========================= */
+
+let strikes = 0;
+
+function setupGame14() {
+
+    strikes = 0;
+
+    $("strikeScore")
+        .textContent = "0";
+}
+
+function strikeGame() {
+
+    if (Math.random() > .45) {
+
+        strikes++;
+
+        $("strikeScore")
+            .textContent =
+            strikes;
+
+        if (strikes >= 3) {
+
+            nextGame();
+        }
+
+    } else {
+
+        strikes = 0;
+
+        $("strikeScore")
+            .textContent =
+            "0";
+
+        if (!loseLife()) {
+
+            alert(
+                "💗 THREE STRIKES 💗"
+            );
+        }
+    }
+}
+
+
+/* =========================
+   GAME 15
+   RANDOM MOVEMENT
+========================= */
+
+function setupGame15() {
+
+    const button =
+        $("bossButton");
+
+    const arena =
+        button.parentElement;
+
+    function move() {
+
+        button.style.left =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientWidth - 100
+            ) + "px";
+
+        button.style.top =
+            Math.random() *
+            Math.max(
+                1,
+                arena.clientHeight - 50
+            ) + "px";
+    }
+
+    button.onmouseenter =
+        move;
+
+    button.onclick =
+        () => show("win");
+
+    move();
+}
+
+</script>
+
+</body>
+</html>
+```
